@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  n8n:
+    image: n8nio/n8n
+    restart: always
+    ports:
+      - "443:443"
+    environment:
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=admin
+      - N8N_BASIC_AUTH_PASSWORD=admin123
+      - N8N_HOST=${NGROK_HOSTNAME:-localhost}
+      - N8N_PORT=443
+      - N8N_PROTOCOL=https
+      - N8N_LISTEN_PORT=443
+      - N8N_LISTEN_ADDRESS=0.0.0.0
+      - EXECUTIONS_PROCESS=main
+      - N8N_RUNNERS_ENABLED=true
+      - N8N_QUEUE_BULL_ACTIVE=false
+      - EXECUTIONS_MODE=regular
+    volumes:
+      - n8n_data:/home/node/.n8n
+    networks:
+      - bot_net
+
+  ngrok:
+    image: ngrok/ngrok
+    restart: always
+    command: http n8n:443 ssl
+    ports:
+      - "4040:4040" # Ngrok Web UI để xem trạng thái tunnels
+    environment:
+      - NGROK_AUTHTOKEN=2uTFaZCMx7HMGwfNebMp25ttXwO_7URzxzmbJEZTh5dv7nc7a # Thay thế bằng token của bạn
+    networks:
+      - bot_net
+
+volumes:
+  n8n_data:
+    driver: local
+networks:
+  bot_net:
+    driver: bridge

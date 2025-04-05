@@ -1,0 +1,44 @@
+version: '3'
+
+services:
+  nginx:
+    image: nginx:latest
+    container_name: nginx-proxy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./nginx/ssl:/etc/nginx/ssl
+      - ./nginx/html:/usr/share/nginx/html
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: n8n
+    environment:
+      - N8N_HOST=localhost
+      - N8N_PORT=8443
+      - N8N_PROTOCOL=https
+      - NODE_TLS_REJECT_UNAUTHORIZED=0
+      - N8N_LISTEN_ADDRESS=0.0.0.0
+      - EXECUTIONS_PROCESS=main
+      - WEBHOOK_TUNNEL_URL=https://localhost/webhook/
+      # Các biến môi trường khác nếu cần
+    ports:
+      - "8443:8443"
+    volumes:
+      - n8n_data:/home/node/.n8n
+    networks:
+      - app-network
+    restart: unless-stopped
+
+volumes:
+  n8n_data:
+
+
+networks:
+  app-network:
+    driver: bridge
