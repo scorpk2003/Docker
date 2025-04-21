@@ -1,0 +1,56 @@
+version: "3.8"
+
+services:
+  n8n:
+    image: n8nio/n8n:latest
+    restart: always
+    ports:
+      - "${N8N_PORT}:5678"
+    environment:
+      - N8N_HOST=${N8N_HOST}
+      - N8N_PORT=${N8N_PORT}
+      - N8N_PROTOCOL=${N8N_PROTOCOL}
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=admin
+      - N8N_BASIC_AUTH_PASSWORD=password
+      - NODE_ENV=production
+      - N8N_ENCRYPTION_KEY=${N8N_ENCRYPTION_KEY}
+      - N8N_RUNNERS_ENABLED=true
+    volumes:
+      - n8n_data:/home/node/.n8n
+    networks:
+      - n8n-network
+    depends_on:
+      - ngrok
+    entrypoint: >
+      /bin/sh -c "
+      sleep 10 &&
+      exec docker-entrypoint.sh n8n start"
+  ngrok:
+    image: ngrok/ngrok:latest
+    restart: always
+    environment:
+      - NGROK_AUTHTOKEN=${NGROK_AUTHTOKEN}
+    command: "http n8n:443"
+    ports:
+      - "4040:4040"
+    networks:
+      - n8n-network
+  ngrok-config:
+    image: curlimages/curl:latest
+    restart: "no"
+    depends_on:
+      - ngrok
+    volumes:
+      - ./update-webhook.sh:/update-webhook.sh
+    entrypoint: ["/bin/sh", "/update-webhook.sh"]
+    environment:
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+    networks:
+      - n8n-network
+networks:
+  n8n-network:
+    driver: bridge
+volumes:
+  n8n_data:
+    driver: local
