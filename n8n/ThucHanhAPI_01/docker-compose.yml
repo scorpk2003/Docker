@@ -4,6 +4,8 @@ services:
   n8n:
     image: n8nio/n8n:latest
     restart: ${SERVICE_RESTART}
+    ports:
+      - "${N8N_PORT}:${N8N_PORT}"
     environment:
       - N8N_HOST=${N8N_HOST}
       - N8N_PORT=${N8N_PORT}
@@ -23,7 +25,7 @@ services:
     restart: ${SERVICE_RESTART}
     environment:
       - NGROK_AUTHTOKEN=${NGROK_AUTHTOKEN}
-    command: "http n8n:5678 --domain=summary-super-mackerel.ngrok-free.app"
+    command: "http n8n:${N8N_PORT} --domain=summary-super-mackerel.ngrok-free.app"
     ports:
       - "4040:4040"
     networks:
