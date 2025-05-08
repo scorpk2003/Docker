@@ -5,7 +5,7 @@ services:
     image: n8nio/n8n:latest
     restart: ${SERVICE_RESTART}
     ports:
-      - "127.0.0.1:${N8N_PORT}:${N8N_PORT}"
+      - "${N8N_PORT}:${N8N_PORT}"
     environment:
       - N8N_HOST=${N8N_HOST}
       - N8N_PORT=${N8N_PORT}
@@ -17,8 +17,12 @@ services:
       - N8N_WEBHOOK_TUNNEL=${N8N_PROTOCOL}://${N8N_HOST}
       - N8N_SKIP_WEBHOOK_DEREGISTRATION_SHUTDOWN=true
       - N8N_RUNNERS_ENABLED=true
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - N8N_SERVE_STATIC_FROM_URL_PATH=/static
+      - N8N_SERVE_STATIC_FROM_DIRECTORY=/static
     volumes:
       - n8n_data:/home/node/.n8n
+      - ./static:/static
     networks:
       - n8n-network
     depends_on:
