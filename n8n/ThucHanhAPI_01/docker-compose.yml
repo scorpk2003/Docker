@@ -6,6 +6,9 @@ services:
     restart: ${SERVICE_RESTART}
     ports:
       - "${N8N_PORT}:${N8N_PORT}"
+    dns:
+      - 1.1.1.1
+      - 8.8.8.8
     environment:
       - N8N_HOST=${N8N_HOST}
       - N8N_PORT=${N8N_PORT}
