@@ -22,14 +22,18 @@ services:
       - N8N_RUNNERS_ENABLED=true
       - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
       - N8N_SERVE_STATIC_FROM_URL_PATH=/static
-      - N8N_SERVE_STATIC_FROM_DIRECTORY=/static
+      - N8N_SERVE_STATIC_FROM_DIRECTORY=/home/node/.n8n/static
     volumes:
       - n8n_data:/home/node/.n8n
-      - ./static:/static
+      - ./static:/home/node/.n8n/static
     networks:
       - n8n-network
     depends_on:
       - ngrok
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.n8n.rule=Host(`${N8N_HOST}`)"
+      - "traefik.http.services.n8n.loadbalancer.server.port=${N8N_PORT}"
   ngrok:
     image: ngrok/ngrok:latest
     restart: ${SERVICE_RESTART}
