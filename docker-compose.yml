@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: sqlserver
+    restart: always
+    ports:
+      - "1433:1433"
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=YourStrong@Password123
+    volumes:
+      - sql_data:/var/opt/mssql
+    networks:
+      - bot_net
+
+  ngrok:
+    image: ngrok/ngrok
+    container_name: ngrok_sql
+    restart: always
+    command: tcp sqlserver:1433
+    ports:
+      - "4040:4040" # Web UI của ngrok
+    environment:
+      - NGROK_AUTHTOKEN=2w1qqeai1Ni9IpsRZwdxhcskuc3_2THFxSS8CUb3dy6Pj7SNu
+    networks:
+      - bot_net
+
+volumes:
+  sql_data:
+    driver: local
+
+networks:
+  bot_net:
+    driver: bridge
